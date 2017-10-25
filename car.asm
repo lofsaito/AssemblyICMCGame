@@ -16,6 +16,7 @@ main:
 	store bot3position, r4 ;armazena a posição inicial do bot3 na variavel global correspondente
 	loadn r4, #0
 	store botsizecounter, r4
+	store botsizecounteraux, r4
 	
 	
 	loadn r2, #1536 ;cor do mapa
@@ -25,7 +26,7 @@ main:
     call Imprimestr
 	loadn r1, #tela1linha0
 	loadn r2, #1536 ;cor do mapa
-	
+	loadn r0, #39
 
 	;loop tela inicial antes de apertar espaco para comecar
 	loopinit:
@@ -47,12 +48,40 @@ main:
 		;store screen, r1 ;referencia para colisao
 		cmp r6, r7 ;criterio para reset
 		jeq reset
-		call delay
+		;call botsGerador
+		;decrementa a posição de todos os bots para se moverem na tela
+		load r4, bot1position
+		dec r4
+		store bot1position, r4
+		load r4, bot2position
+		dec r4
+		store bot2position, r4
+		load r4, bot3position
+		dec r4
+		store bot3position, r4
+		;incrementa contador do bot para andar na tela
+		load r4, botsizecounter
+		inc r4
+		store botsizecounter, r4
+		cmp r4, r0
+		jeq resetabot
+		;========================
+		;call delay
 		jmp loop
 	reset:
 		loadn r1, #tela1linha0 ;reinicia a sequencia de telas
 		store screen, r1
 		loadn r7, #0
+		jmp loop
+	resetabot:
+		loadn r4, #479
+		store bot1position, r4 ;armazena a posição inicial do bot1 na variavel global correspondente
+		loadn r4, #679
+		store bot2position, r4 ;armazena a posição inicial do bot2 na variavel global correspondente
+		loadn r4, #879
+		store bot3position, r4 ;armazena a posição inicial do bot3 na variavel global correspondente
+		loadn r4, #0
+		store botsizecounter, r4
 		jmp loop
 	halt
 	
@@ -67,24 +96,39 @@ botsGerador:
 	push r6
 	push r7
 	loadn r6, #40
-	load r0, bot1position
+	load r0, bot1position ;posição inicial do bot
+	loadn r3, #5
+	load r4, botsizecounter
+	loadn r5, #0
+	loadn r6, #9
 	
 	
 	loadn r2, #1280 ;cor do carrinho 
-	loadn r1, #carlinha0
-    call Imprimestr
+	loadn r1, #botlinha0 ;endereço da imagem do bot
+	
+	;loopImprimeBot:
+		call Imprimecoluna
+		;add r1, r1, r3
+		;inc r5
+		;cmp r5, r6
+		;jgr botsGeradorFim
+		;cmp r4, r5
+		;jle loopImprimeBot
+
+	;loadn r1, #carlinha0
+    ;call Imprimestr
     ;loadn r2, #0 ;cor do carrinho
-    add r0, r0, r6
-	loadn r1, #carlinha1
-    call Imprimestr
+    ;add r0, r0, r6
+	;loadn r1, #carlinha1
+    ;call Imprimestr
     ;loadn r2, #0 ;cor do carrinho 
-    add r0, r0, r6
-	loadn r1, #carlinha2
-    call Imprimestr
+    ;add r0, r0, r6
+	;loadn r1, #carlinha2
+    ;call Imprimestr
     ;loadn r2, #2048 ;cor do carrinho 
-    add r0, r0, r6
-	loadn r1, #carlinha3
-    call Imprimestr
+    ;add r0, r0, r6
+	;loadn r1, #carlinha3
+    ;call Imprimestr
 	
 	;3 bots um para cada via da pista
 	;primeira via posição inicial do bot 479, final 440
@@ -213,6 +257,9 @@ imprimeTela:
 	push r6
 	push r7
 	
+	loadn r0, #440
+	load r6, bot1position
+	sub r6, r6, r0
 	loadn r0, #0 ; pos inicial OBS: TEM QUE SER O COMECO DA Tela
 	loadn r3, #1 ; Incremento da pos da tela
 	loadn r4, #31 ; Incremento do ponteiro das linhas da tela
@@ -222,13 +269,14 @@ imprimeTela:
 	ImprimeTelaLoop:
 		call Imprimecoluna
 		
-		add r0, r0, r3 ; Incrementa pos para a segunda linha na tela --> r0 = r0 + 40
-		add r1, r1, r4 ; incrementa o ponteiro para o comeco da proxima linha na memoria (40 + 1 ...)
+		add r0, r0, r3 ; Incrementa pos para a segunda linha na tela --> r0 = r0 + 1
+		add r1, r1, r4 ; incrementa o ponteiro para o comeco da proxima linha na memoria (30 + 1 ...)
 		cmp r7, r0
 		ceq imprimeCarro
-		 ;call botsGerador
-		cmp r0, r5 ; compara r0 com 1200
-		jne ImprimeTelaLoop ; Enquanto r0 < 1200
+		cmp r6, r0
+		ceq botsGerador
+		cmp r0, r5 ; compara r0 com 40
+		jne ImprimeTelaLoop ; Enquanto r0 < 40
 		
 	
 	pop r7
@@ -280,7 +328,7 @@ Imprimecoluna:	;  Rotina de Impresao de Mensagens:    r0 = Posicao da tela que o
 	loadn r3, #'\0'	; Criterio de parada4
 	;loadn r5, #40 ;incremento de 40 para pegar a proxima posição a ser impressa
 
-ImprimecolunaLoop:	
+ImprimecolunaLoop:
 	loadi r4, r1 ; passa o conteudo do end. da string para r4
 	cmp r4, r3 ; compara com o criterio de parada
 	jeq ImprimecolunaSai ; se for igual termina
@@ -325,6 +373,7 @@ bot1position: var #1	;posição da tela na via 1 bot1
 bot2position: var #1	;posição da tela na via 2 bot2
 bot3position: var #1	;posição da tela na via 3 bot3
 botsizecounter: var #1
+botsizecounteraux: var #1
 
 
 tela1linha0:   string "          -    -    -    -    "
@@ -368,7 +417,7 @@ tela1linha37:  string "          -              -    "
 tela1linha38:  string "          -    -    -    -    "
 tela1linha39:  string "          -              -    "
 
-tela1linha40:	string "          -    -    -    -    "
+tela1linha40:	string "          -####-    -####-    "
 tela1linha41:	string "          -              -    "
 tela1linha42:	string "          -    -    -    -    "
 tela1linha43:	string "          -              -    "
@@ -380,7 +429,7 @@ tela1linha48:	string "          -    -    -    -    "
 tela1linha49:	string "          -              -    "
 tela1linha50:	string "          -    -    -    -    "
 tela1linha51:	string "          -              -    "
-tela1linha52:	string "          -    -    -    -    "
+tela1linha52:	string "          -    -####-    -    "
 tela1linha53:	string "          -              -    "
 tela1linha54:	string "          -    -    -    -    "
 tela1linha55:	string "          -              -    "
@@ -414,7 +463,7 @@ carlinha1:	string "[<[##]>>]"
 carlinha2:	string "[<[##]>>]"
 carlinha3:	string " +@ - @| "
 
-botlinha0: string " || "
+botlinha0: string "####"
 botlinha1: string "|--|"
 botlinha2: string "O--O"
 botlinha3: string "|--|"
