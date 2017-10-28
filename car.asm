@@ -3,22 +3,17 @@ jmp main
 
 main:
 	loadn r1, #tela1linha0 ; endereco da primeira linha da tela
-	loadn r6, #40 ;criterio de parada da impressao de telas, ultima tela a ser impressa, voltar para a primeira
+	loadn r7, #0 ;inicializacao de flags
+	store colisaoflag, r7
+	loadn r6, #120 ;criterio de parada da impressao de telas, ultima tela a ser impressa, voltar para a primeira
 	loadn r3, #31  ;incremento da coluna da tela, para shifitar a tela
 	loadn r5, #32  ;tecla espaco
 	loadn r4, #643 ;posicao inicial do carrinho na tela -200 sobe a rua +200 desce
 	store atualpos, r4 ;armazena posição inicial do carrinho na variavel global atualpos
-	loadn r4, #479
-	store bot1position, r4 ;armazena a posição inicial do bot1 na variavel global correspondente
-	loadn r4, #679
-	store bot2position, r4 ;armazena a posição inicial do bot2 na variavel global correspondente
-	loadn r4, #879
-	store bot3position, r4 ;armazena a posição inicial do bot3 na variavel global correspondente
-	loadn r4, #0
-	store botsizecounter, r4
-	store botsizecounteraux, r4
+	loadn r4, #12
+	store altura, r4 ;altura inicial do carro na tela logica
 	
-	
+	loadn r5, #32  ;tecla espaco
 	loadn r2, #1536 ;cor do mapa
 	call imprimeTela
 	loadn r2, #0 ;cor da escrita na tela
@@ -40,32 +35,14 @@ main:
 		store screen, r1
 		;call colisao
 		call imprimeTela
-		;load r4, colisaoflag
-		;cmp r4, r5
-		;jeq endfunc
+		load r4, colisaoflag
+		cmp r4, r5
+		jeq endfunc
 		inc r7 ;incrementa contador para indicar quando a tela deve voltar ao inicio
 		add r1, r1, r3  ;anda uma coluna para frente a partir da posicao atual da tela
 		;store screen, r1 ;referencia para colisao
 		cmp r6, r7 ;criterio para reset
 		jeq reset
-		;call botsGerador
-		;decrementa a posição de todos os bots para se moverem na tela
-		load r4, bot1position
-		dec r4
-		store bot1position, r4
-		load r4, bot2position
-		dec r4
-		store bot2position, r4
-		load r4, bot3position
-		dec r4
-		store bot3position, r4
-		;incrementa contador do bot para andar na tela
-		load r4, botsizecounter
-		inc r4
-		store botsizecounter, r4
-		cmp r4, r0
-		jeq resetabot
-		;========================
 		;call delay
 		jmp loop
 	reset:
@@ -73,20 +50,29 @@ main:
 		store screen, r1
 		loadn r7, #0
 		jmp loop
-	resetabot:
-		loadn r4, #479
-		store bot1position, r4 ;armazena a posição inicial do bot1 na variavel global correspondente
-		loadn r4, #679
-		store bot2position, r4 ;armazena a posição inicial do bot2 na variavel global correspondente
-		loadn r4, #879
-		store bot3position, r4 ;armazena a posição inicial do bot3 na variavel global correspondente
-		loadn r4, #0
-		store botsizecounter, r4
-		jmp loop
+		
+	endfunc:
+		loadn r1, #gameover
+		loadn r0, #81
+		call Imprimestr
+		loadn r5, #32
+		loopend:
+			inchar r4
+			cmp r4, r5
+		jne loopend
+		jmp main
+			
 	halt
 	
 	
-botsGerador:
+colisaoactive:
+	push r0
+	loadn r0, #1
+	store colisaoflag, r0 
+	pop r0
+	rts
+	
+colisao:
 	push r0
 	push r1
 	push r2
@@ -95,47 +81,27 @@ botsGerador:
 	push r5
 	push r6
 	push r7
-	loadn r6, #40
-	load r0, bot1position ;posição inicial do bot
-	loadn r3, #5
-	load r4, botsizecounter
-	loadn r5, #0
-	loadn r6, #9
 	
+	;load r0, atualpos
+	load r1, screen
 	
-	loadn r2, #1280 ;cor do carrinho 
-	loadn r1, #botlinha0 ;endereço da imagem do bot
+	loadn r2, #346  
+	load r5, altura
+	;loadn r4, #10
+	add r1, r1, r2
+	add r1, r1, r5
 	
-	;loopImprimeBot:
-		call Imprimecoluna
-		;add r1, r1, r3
-		;inc r5
-		;cmp r5, r6
-		;jgr botsGeradorFim
-		;cmp r4, r5
-		;jle loopImprimeBot
 
-	;loadn r1, #carlinha0
-    ;call Imprimestr
-    ;loadn r2, #0 ;cor do carrinho
-    ;add r0, r0, r6
-	;loadn r1, #carlinha1
-    ;call Imprimestr
-    ;loadn r2, #0 ;cor do carrinho 
-    ;add r0, r0, r6
-	;loadn r1, #carlinha2
-    ;call Imprimestr
-    ;loadn r2, #2048 ;cor do carrinho 
-    ;add r0, r0, r6
-	;loadn r1, #carlinha3
-    ;call Imprimestr
+	loadn r6, #'#'
 	
-	;3 bots um para cada via da pista
-	;primeira via posição inicial do bot 479, final 440
-	;segunda via posição inicial do bot 679, final 640
-	;terceira via posição inicial do bot 879, final 840
-	
-botsGeradorFim:	
+	loadi r3, r1
+	cmp r3, r6
+	ceq colisaoactive
+
+	 
+		
+
+colisaoFim:
 	pop r7
 	pop r6
 	pop r5
@@ -194,7 +160,7 @@ imprimeCarro:
 	;loadn r1, #'H'
 
 	;outchar r1, r5 ;imprime personagem na tela
-	;call colisao
+	call colisao
 	
 	
 imprimeCarroFim:
@@ -212,6 +178,7 @@ subir:
 	push r0
 	push r1
 	push r2
+	push r3
 	loadn r2, #443
 	;643 - 200 = 443 max top
 	loadn r1, #200
@@ -220,8 +187,13 @@ subir:
 	jeq subirFim
 	sub r0, r0, r1
 	store atualpos, r0
+	load r0, altura
+	loadn r3, #6
+	sub r0, r0, r3
+	store altura, r0
 	
 subirFim:
+	pop r3
 	pop r2
 	pop r1
 	pop r0
@@ -232,6 +204,7 @@ descer:
 	push r0
 	push r1
 	push r2
+	push r3
 	loadn r2, #843
 	;643 + 200 = 843 max bottom
 	loadn r1, #200
@@ -240,8 +213,13 @@ descer:
 	jeq descerFim
 	add r0, r0, r1
 	store atualpos, r0
+	load r0, altura
+	loadn r3, #6
+	add r0, r0, r3
+	store altura, r0
 
 descerFim:
+	pop r3
 	pop r2
 	pop r1
 	pop r0
@@ -257,9 +235,6 @@ imprimeTela:
 	push r6
 	push r7
 	
-	loadn r0, #440
-	load r6, bot1position
-	sub r6, r6, r0
 	loadn r0, #0 ; pos inicial OBS: TEM QUE SER O COMECO DA Tela
 	loadn r3, #1 ; Incremento da pos da tela
 	loadn r4, #31 ; Incremento do ponteiro das linhas da tela
@@ -273,8 +248,6 @@ imprimeTela:
 		add r1, r1, r4 ; incrementa o ponteiro para o comeco da proxima linha na memoria (30 + 1 ...)
 		cmp r7, r0
 		ceq imprimeCarro
-		cmp r6, r0
-		ceq botsGerador
 		cmp r0, r5 ; compara r0 com 40
 		jne ImprimeTelaLoop ; Enquanto r0 < 40
 		
@@ -369,12 +342,8 @@ atualpos: var #1
 gameover: string "            GAME OVER                   "
 start: string "       Press Space To Start             "
 screen: var #1 
-bot1position: var #1	;posição da tela na via 1 bot1
-bot2position: var #1	;posição da tela na via 2 bot2
-bot3position: var #1	;posição da tela na via 3 bot3
-botsizecounter: var #1
-botsizecounteraux: var #1
-
+colisaoflag: var #1
+altura: var #1
 
 tela1linha0:   string "          -    -    -    -    "
 tela1linha1:   string "          -              -    "
@@ -417,7 +386,7 @@ tela1linha37:  string "          -              -    "
 tela1linha38:  string "          -    -    -    -    "
 tela1linha39:  string "          -              -    "
 
-tela1linha40:	string "          -####-    -####-    "
+tela1linha40:	string "          -    -    -    -    "
 tela1linha41:	string "          -              -    "
 tela1linha42:	string "          -    -    -    -    "
 tela1linha43:	string "          -              -    "
@@ -429,7 +398,7 @@ tela1linha48:	string "          -    -    -    -    "
 tela1linha49:	string "          -              -    "
 tela1linha50:	string "          -    -    -    -    "
 tela1linha51:	string "          -              -    "
-tela1linha52:	string "          -    -####-    -    "
+tela1linha52:	string "          -    -    -    -    "
 tela1linha53:	string "          -              -    "
 tela1linha54:	string "          -    -    -    -    "
 tela1linha55:	string "          -              -    "
@@ -441,7 +410,7 @@ tela1linha60:	string "          -    -    -    -    "
 tela1linha61:	string "          -              -    "
 tela1linha62:	string "          -    -    -    -    "
 tela1linha63:	string "          -              -    "
-tela1linha64:	string "          -    -    -    -    "
+tela1linha64:	string "          -####-    -####-    "
 tela1linha65:	string "          -              -    "
 tela1linha66:	string "          -    -    -    -    "
 tela1linha67:	string "          -              -    "
@@ -458,27 +427,130 @@ tela1linha77:	string "          -              -    "
 tela1linha78:	string "          -    -    -    -    "
 tela1linha79:	string "          -              -    "
 
+tela1linha80:	string "          -    -    -    -    "
+tela1linha81:	string "          -              -    "
+tela1linha82:	string "          -    -    -    -    "
+tela1linha83:	string "          -              -    "
+tela1linha84:	string "          -    -    -    -    "
+tela1linha85:	string "          -              -    "
+tela1linha86:	string "          -    -    -    -    "
+tela1linha87:	string "          -              -    "
+tela1linha88:	string "          -    -    -    -    "
+tela1linha89:	string "          -              -    "
+tela1linha90:	string "          -    -    -    -    "
+tela1linha91:	string "          -              -    "
+tela1linha92:	string "          -    -    -    -    "
+tela1linha93:	string "          -              -    "
+tela1linha94:	string "          -    -    -    -    "
+tela1linha95:	string "          -              -    "
+tela1linha96:	string "          -    -    -    -    "
+tela1linha97:	string "          -              -    "
+tela1linha98:	string "          -    -    -    -    "
+tela1linha99:	string "          -              -    "
+tela1linha100:	string "          -    -    -    -    "
+tela1linha101:	string "          -              -    "
+tela1linha102:	string "          -    -    -    -    "
+tela1linha103:	string "          -              -    "
+tela1linha104:	string "          -    -    -    -    "
+tela1linha105:	string "          -              -    "
+tela1linha106:	string "          -    -    -    -    "
+tela1linha107:	string "          -              -    "
+tela1linha108:	string "          -    -    -    -    "
+tela1linha109:	string "          -              -    "
+tela1linha110:	string "          -    -    -    -    "
+tela1linha111:	string "          -              -    "
+tela1linha112:	string "          -    -    -    -    "
+tela1linha113:	string "          -              -    "
+tela1linha114:	string "          -    -    -    -    "
+tela1linha115:	string "          -              -    "
+tela1linha116:	string "          -    -    -    -    "
+tela1linha117:	string "          -              -    "
+tela1linha118:	string "          -    -    -    -    "
+tela1linha119:	string "          -              -    "
+
+tela1linha120:	string "          -    -    -    -    "
+tela1linha121:	string "          -              -    "
+tela1linha122:	string "          -    -    -    -    "
+tela1linha123:	string "          -              -    "
+tela1linha124:	string "          -    -    -    -    "
+tela1linha125:	string "          -              -    "
+tela1linha126:	string "          -    -    -    -    "
+tela1linha127:	string "          -              -    "
+tela1linha128:	string "          -    -    -    -    "
+tela1linha129:	string "          -              -    "
+tela1linha130:	string "          -    -    -    -    "
+tela1linha131:	string "          -              -    "
+tela1linha132:	string "          -    -    -    -    "
+tela1linha133:	string "          -              -    "
+tela1linha134:	string "          -    -    -    -    "
+tela1linha135:	string "          -              -    "
+tela1linha136:	string "          -    -    -    -    "
+tela1linha137:	string "          -              -    "
+tela1linha138:	string "          -    -    -    -    "
+tela1linha139:	string "          -              -    "
+tela1linha140:	string "          -    -    -    -    "
+tela1linha141:	string "          -              -    "
+tela1linha142:	string "          -    -    -    -    "
+tela1linha143:	string "          -              -    "
+tela1linha144:	string "          -    -    -    -    "
+tela1linha145:	string "          -              -    "
+tela1linha146:	string "          -    -    -    -    "
+tela1linha147:	string "          -              -    "
+tela1linha148:	string "          -    -    -    -    "
+tela1linha149:	string "          -              -    "
+tela1linha150:	string "          -    -    -    -    "
+tela1linha151:	string "          -              -    "
+tela1linha152:	string "          -    -    -    -    "
+tela1linha153:	string "          -              -    "
+tela1linha154:	string "          -    -    -    -    "
+tela1linha155:	string "          -              -    "
+tela1linha156:	string "          -    -    -    -    "
+tela1linha157:	string "          -              -    "
+tela1linha158:	string "          -    -    -    -    "
+tela1linha159:	string "          -              -    "
+
+tela1linha160:	string "          -    -    -    -    "
+tela1linha161:	string "          -              -    "
+tela1linha162:	string "          -    -    -    -    "
+tela1linha163:	string "          -              -    "
+tela1linha164:	string "          -    -    -    -    "
+tela1linha165:	string "          -              -    "
+tela1linha166:	string "          -    -    -    -    "
+tela1linha167:	string "          -              -    "
+tela1linha168:	string "          -    -    -    -    "
+tela1linha169:	string "          -              -    "
+tela1linha170:	string "          -    -    -    -    "
+tela1linha171:	string "          -              -    "
+tela1linha172:	string "          -    -    -    -    "
+tela1linha173:	string "          -              -    "
+tela1linha174:	string "          -    -    -    -    "
+tela1linha175:	string "          -              -    "
+tela1linha176:	string "          -    -    -    -    "
+tela1linha177:	string "          -              -    "
+tela1linha178:	string "          -    -    -    -    "
+tela1linha179:	string "          -              -    "
+tela1linha180:	string "          -    -    -    -    "
+tela1linha181:	string "          -              -    "
+tela1linha182:	string "          -    -    -    -    "
+tela1linha183:	string "          -              -    "
+tela1linha184:	string "          -    -    -    -    "
+tela1linha185:	string "          -              -    "
+tela1linha186:	string "          -    -    -    -    "
+tela1linha187:	string "          -              -    "
+tela1linha188:	string "          -    -    -    -    "
+tela1linha189:	string "          -              -    "
+tela1linha190:	string "          -    -    -    -    "
+tela1linha191:	string "          -              -    "
+tela1linha192:	string "          -    -    -    -    "
+tela1linha193:	string "          -              -    "
+tela1linha194:	string "          -    -    -    -    "
+tela1linha195:	string "          -              -    "
+tela1linha196:	string "          -    -    -    -    "
+tela1linha197:	string "          -              -    "
+tela1linha198:	string "          -    -    -    -    "
+tela1linha199:	string "          -              -    "
+
 carlinha0:	string " +@ - @| "
 carlinha1:	string "[<[##]>>]"
 carlinha2:	string "[<[##]>>]"
 carlinha3:	string " +@ - @| "
-
-botlinha0: string "####"
-botlinha1: string "|--|"
-botlinha2: string "O--O"
-botlinha3: string "|--|"
-botlinha4: string " () "
-botlinha5: string "|()|"
-botlinha6: string "O--O"
-botlinha7: string "|--|"
-botlinha8: string " -- "
-
-randposition: var #8
-static randposition + #0, #0
-static randposition + #1, #2
-static randposition + #2, #0
-static randposition + #3, #1
-static randposition + #4, #2
-static randposition + #5, #1
-static randposition + #6, #0
-static randposition + #7, #2
