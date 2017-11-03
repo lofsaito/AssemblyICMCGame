@@ -2,86 +2,68 @@
 jmp main
 
 main:
-	loadn r1, #starttela1linha0 ; endereco da primeira linha da tela
-	loadn r7, #0 ;inicializacao de flags
-	store colisaoflag, r7
-	loadn r6, #40 ;criterio de parada da impressao de telas, ultima tela a ser impressa, voltar para a primeira
-	loadn r3, #31  ;incremento da coluna da tela, para shifitar a tela
-	;loadn r5, #32  ;tecla espaco
-	loadn r4, #643 ;posicao inicial do carrinho na tela -200 sobe a rua +200 desce
-	store atualpos, r4 ;armazena posição inicial do carrinho na variavel global atualpos
-	loadn r4, #12
-	store altura, r4 ;altura inicial do carro na tela logica
-	
-	
-	;===============tela inicial================
-	loadn r5, #32  ;tecla espaco
-	
-	loadn r2, #768 ;cor do mapa
-	call imprimeTelaInit
-	
-	loadn r4, #327
-	store cursor, r4
-	
-	loadn r2, #0
-	loadn r0, #321
-	loadn r1, #start
-	call Imprimestr
-	loadn r0, #441
-	loadn r1, #selection
-	call Imprimestr
-	loadn r2, #3584
-	loadn r0, #121
-	loadn r1, #gamename
-	call Imprimestr
-	
-	loadn r5, #'>'
-	load r4, cursor
-	
-	outchar r5, r4
-	
-	call movecursor
-	
-	;==============fim tela inicial===============
-	loadn r2, #1536 ;cor do mapa
-	loadn r1, #tela1linha0 ; endereco da primeira linha da tela
-	loadn r5, #1
-	loadn r6, #160 ;criterio de parada da impressao de telas, ultima tela a ser impressa, voltar para a primeira
-	
-	
-		loop:
-		store screen, r1
-		call imprimeTela
-		load r4, colisaoflag
-		cmp r4, r5
-		jeq endfunc
-		inc r7 ;incrementa contador para indicar quando a tela deve voltar ao inicio
-		add r1, r1, r3  ;anda uma coluna para frente a partir da posicao atual da tela
-		;store screen, r1 ;referencia para colisao
-		cmp r6, r7 ;criterio para reset
-		jeq reset
-		;call delay
-		jmp loop
-	reset:
-		loadn r1, #tela1linha0 ;reinicia a sequencia de telas
-		store screen, r1
-		loadn r7, #0
-		jmp loop
+	;loadn r4, #1
+	;store selectedCar, r4		;persistencia das escolhas do jogador apos reiniciar o jogo
+	;store selectedColor, r4
+	resetgame:
+		loadn r7, #0 ;inicializacao de flags
+		store colisaoflag, r7
+		loadn r6, #40 ;criterio de parada da impressao de telas, ultima tela a ser impressa, voltar para a primeira
+		loadn r3, #31  ;incremento da coluna da tela, para shifitar a tela
+		;loadn r5, #32  ;tecla espaco
+		loadn r4, #643 ;posicao inicial do carrinho na tela -200 sobe a rua +200 desce
+		store atualpos, r4 ;armazena posição inicial do carrinho na variavel global atualpos
+		loadn r4, #12
+		store altura, r4 ;altura inicial do carro na tela logica
+		loadn r4, #1
+		store selectedCar, r4
+		store selectedColor, r4
 		
-	endfunc:
-		loadn r1, #gameover
-		loadn r0, #81
-		loadn r2, #0
-		call Imprimestr
-		loadn r5, #32
-		loopend:
-			inchar r4
+		
+		;===============tela inicial================
+		
+		call movecursor
+		
+		;==============fim tela inicial===============
+		loadn r2, #1536 ;cor do mapa
+		loadn r1, #tela1linha0 ; endereco da primeira linha da tela
+		loadn r5, #1
+		loadn r6, #200 ;criterio de parada da impressao de telas, ultima tela a ser impressa, voltar para a primeira
+		
+		;==============Loop principal do jogo==========
+			loop:
+			store screen, r1
+			call imprimeTela
+			load r4, colisaoflag
 			cmp r4, r5
-		jne loopend
-		jmp main
+			jeq endfunc
+			inc r7 ;incrementa contador para indicar quando a tela deve voltar ao inicio
+			add r1, r1, r3  ;anda uma coluna para frente a partir da posicao atual da tela
+			;store screen, r1 ;referencia para colisao
+			cmp r6, r7 ;criterio para reset
+			jeq reset
+			;call delay
+			jmp loop
+		reset:
+			loadn r1, #tela1linha0 ;reinicia a sequencia de telas
+			store screen, r1
+			loadn r7, #0
+			jmp loop
+			
+		endfunc:
+			loadn r1, #gameover
+			loadn r0, #81
+			loadn r2, #0
+			call Imprimestr
+			loadn r5, #32
+			loopend:
+				inchar r4
+				cmp r4, r5
+			jne loopend
+			jmp resetgame
 			
 	halt
-
+	
 
 movecursor:
 	push r0
@@ -92,32 +74,59 @@ movecursor:
 	push r5
 	push r6
 	
-	loadn r0, #327
-	loadn r1, #447
-	loadn r5, #32  ;tecla espaco
-	
-	loadn r3, #119
-	loadn r4, #115
-	
-	cursorloop:
-		inchar r2 ;captura tecla da tela para verificar se troca via da pista
-		cmp r2, r3
-		ceq cursorup
-	
-		cmp r2, r4
-		ceq cursordown
-	
-		cmp r2, r5
-		jeq checkPosition
-		jmp cursorloop
+	telaInicialLoop:
+		loadn r1, #starttela1linha0 ; endereco da primeira linha da tela
+		loadn r2, #768 ;cor do mapa
+		call imprimeTelaInit
 		
-	checkPosition:
-		;load r6, cursor
-		;cmp r0, r6
-		;jeq 
-		;cmp r1, r6
-		;jeq
+		loadn r4, #327
+		store cursor, r4
 		
+		loadn r2, #0
+		loadn r0, #321
+		loadn r1, #start
+		call Imprimestr
+		loadn r0, #441
+		loadn r1, #selection
+		call Imprimestr
+		loadn r2, #3584
+		loadn r0, #121
+		loadn r1, #gamename
+		call Imprimestr
+		
+		loadn r5, #'>'
+		load r4, cursor
+		
+		outchar r5, r4
+		
+		loadn r0, #327
+		loadn r1, #447
+		loadn r5, #32  ;tecla espaco
+		
+		loadn r3, #119
+		loadn r4, #115
+		
+		
+		cursorloop:
+			inchar r2 ;captura tecla da tela para verificar se troca via da pista
+			cmp r2, r3
+			ceq cursorup
+		
+			cmp r2, r4
+			ceq cursordown
+			
+			cmp r2, r5
+			jeq checkPosition
+			jmp cursorloop
+			
+		checkPosition:
+			load r6, cursor
+			cmp r0, r6
+			jeq movecursorFim
+			cmp r1, r6
+			ceq carCustomize
+			;loadn r2, #1
+	jmp telaInicialLoop
 	
 	;loadn r1, #'>'
 	;load r0, cursor
@@ -133,6 +142,318 @@ movecursorFim:
 	pop r0
 	rts
 	
+	
+carCustomize:
+	push r0
+	push r1
+	push r2
+	push r3
+	push r4
+	push r5
+	push r6
+	push r7
+	
+	loadn r6, #40
+	loadn r1, #starttela1linha0
+	;loadn r5, #32  ;tecla espaco
+	
+	loadn r2, #768 ;cor do mapa
+	call imprimeTelaInit
+	
+	loadn r4, #327
+	store cursor, r4
+	
+	loadn r2, #0
+	loadn r0, #321
+	loadn r1, #selectcolor
+	call Imprimestr
+	loadn r0, #441
+	loadn r1, #selectcar
+	call Imprimestr
+	
+	loadn r0, #575
+	loadn r2, #0 ;cor do carrinho 
+	loadn r1, #carlinha0
+    call Imprimestr
+    ;loadn r2, #0 ;cor do carrinho
+    add r0, r0, r6
+	loadn r1, #carlinha1
+    call Imprimestr
+    ;loadn r2, #0 ;cor do carrinho 
+    add r0, r0, r6
+	loadn r1, #carlinha2
+    call Imprimestr
+    ;loadn r2, #2048 ;cor do carrinho 
+    add r0, r0, r6
+	loadn r1, #carlinha3
+    call Imprimestr
+	
+	
+	loadn r0, #801
+	loadn r1, #voltar
+	call Imprimestr
+	loadn r2, #3584
+	loadn r0, #121
+	loadn r1, #gamename
+	call Imprimestr
+	
+	loadn r5, #'>'
+	load r4, cursor
+	
+	outchar r5, r4
+	
+	loadn r5, #32  ;tecla espaco
+	
+	loadn r3, #119 ;cursor para cima
+	loadn r4, #115 ;cursor para baixo
+	loadn r0, #97 ;cursor para esquerda
+	loadn r1, #100 ;cursor para direita 
+	
+	;A97 D100
+	
+	customizeloop:
+		inchar r2 ;captura tecla da tela para verificar se troca via da pista
+		cmp r2, r3
+		ceq cursoruptwo
+	
+		cmp r2, r4
+		ceq cursordowntwo
+	
+		cmp r2, r0
+		jeq checkcursorleft
+		cmp r2, r1
+		jeq checkcursorright
+		
+		cmp r2, r5
+		jeq checkcursorspace
+		jmp customizeloop
+		
+	checkcursorleft:
+		loadn r0, #327
+		loadn r1, #447
+		load r6, cursor
+		cmp r0, r6
+		ceq colorChangeleft
+		cmp r1, r6
+		ceq carSelectleft
+		loadn r0, #97 ;cursor para esquerda
+		loadn r1, #100 ;cursor para direita 
+		jmp customizeloop
+		
+	checkcursorright:
+		loadn r0, #327
+		loadn r1, #447
+		load r6, cursor
+		cmp r0, r6
+		ceq colorChangeright
+		cmp r1, r6
+		ceq carSelectright
+		loadn r0, #97 ;cursor para esquerda
+		loadn r1, #100 ;cursor para direita 
+		jmp customizeloop
+		
+	checkcursorspace:	
+		loadn r7, #807
+		load r6, cursor
+		cmp r7, r6
+		jeq carCustomizeFim
+		jmp customizeloop
+		
+carCustomizeFim:
+	pop r7
+	pop r6
+	pop r5
+	pop r4
+	pop r3
+	pop r2
+	pop r1
+	pop r0
+	
+	rts
+	
+	
+colorChangeleft:
+	push r0
+	push r1
+	push r2
+	push r3
+	push r4
+	
+	;min 1 max 3
+	load r4, selectedColor
+	loadn r3, #1
+
+	cmp r3, r4
+	jeq colorChangeleftFim
+	inc r3
+	cmp r3, r4
+	jeq whitecolor
+	inc r3
+	cmp r3, r4
+	jeq redcolor
+	
+	whitecolor:
+		loadn r2, #0
+		loadn r0, #335
+		loadn r1, #cor1string
+		call Imprimestr
+		loadn r3, #1
+		store selectedColor, r3
+		jmp colorChangeleftFim
+		
+	redcolor:
+		loadn r2, #0
+		loadn r0, #335
+		loadn r1, #cor2string
+		call Imprimestr
+		loadn r3, #2
+		store selectedColor, r3
+		jmp colorChangeleftFim
+		
+colorChangeleftFim:		
+	pop r4
+	pop r3
+	pop r2
+	pop r1
+	pop r0
+	rts
+	
+colorChangeright:
+	push r0
+	push r1
+	push r2
+	push r3
+	push r4
+	
+	;min 1 max 3
+	load r4, selectedColor
+	loadn r3, #1
+
+	cmp r3, r4
+	jeq redcolor
+	inc r3
+	cmp r3, r4
+	jeq greencolor
+	jmp colorChangerightFim
+		
+	redcolor:
+		loadn r2, #0
+		loadn r0, #335
+		loadn r1, #cor2string
+		call Imprimestr
+		loadn r3, #2
+		store selectedColor, r3
+		jmp colorChangeleftFim
+	
+	greencolor:
+		loadn r2, #0
+		loadn r0, #335
+		loadn r1, #cor3string
+		call Imprimestr
+		loadn r3, #3
+		store selectedColor, r3
+
+colorChangerightFim:
+	pop r4
+	pop r3
+	pop r2
+	pop r1
+	pop r0
+	rts
+
+
+carSelectleft:
+	push r0
+	push r1
+	push r2
+	push r3
+	push r4
+	
+	;min 1 max 3
+	load r4, selectedCar
+	loadn r3, #1
+	
+	cmp r3, r4
+	jeq carSelectleftFim
+	inc r3
+	cmp r3, r4
+	jeq type1
+	inc r3
+	cmp r3, r4
+	jeq type2
+	
+	type1:
+		loadn r2, #0
+		loadn r0, #460
+		loadn r1, #carmodel1
+		call Imprimestr
+		loadn r3, #1
+		store selectedCar, r3
+		jmp carSelectleftFim
+		
+	type2:
+		loadn r2, #0
+		loadn r0, #460
+		loadn r1, #carmodel2
+		call Imprimestr
+		loadn r3, #2
+		store selectedCar, r3
+		jmp carSelectleftFim
+
+
+carSelectleftFim:
+	pop r4
+	pop r3
+	pop r2
+	pop r1
+	pop r0
+	rts
+	
+carSelectright:
+	push r0
+	push r1
+	push r2
+	push r3
+	push r4
+	
+	;min 1 max 3
+	load r4, selectedCar
+	loadn r3, #1
+	
+	cmp r3, r4
+	jeq type2
+	inc r3
+	cmp r3, r4
+	jeq type3
+	jmp carSelectrightFim
+		
+	type2:
+		loadn r2, #0
+		loadn r0, #460
+		loadn r1, #carmodel2
+		call Imprimestr
+		loadn r3, #2
+		store selectedCar, r3
+		jmp carSelectleftFim
+		
+	type3:
+		loadn r2, #0
+		loadn r0, #460
+		loadn r1, #carmodel3
+		call Imprimestr
+		loadn r3, #3
+		store selectedCar, r3
+		jmp carSelectleftFim
+
+
+carSelectrightFim:
+	pop r4
+	pop r3
+	pop r2
+	pop r1
+	pop r0
+	rts
+		
 cursorup:
 	push r0
 	push r1
@@ -171,6 +492,74 @@ cursordown:
 	pop r0
 	rts
 	
+	
+cursoruptwo:
+	push r0
+	push r1
+	push r2
+	
+	loadn r2, #807
+	loadn r1, #' '
+	load r0, cursor
+	outchar r1, r0
+	
+	loadn r1, #'>'
+	
+	
+	cmp r0, r2
+	jeq uptwo
+	loadn r0, #327
+	outchar r1, r0
+	store cursor, r0
+	jmp cursoruptwoFim
+	
+	uptwo:
+		loadn r0, #447
+		outchar r1, r0
+		store cursor, r0
+		
+
+
+cursoruptwoFim:
+	pop r2
+	pop r1
+	pop r0
+	rts
+	
+cursordowntwo:
+	push r0
+	push r1
+	push r2
+	
+	loadn r1, #' '
+	
+	load r0, cursor
+	outchar r1, r0
+	
+	loadn r2, #447
+	loadn r1, #'>'
+	cmp r0, r2
+	jeq downtwo
+	loadn r2, #807
+	cmp r0, r2
+	jeq downtwo
+	loadn r0, #447
+	
+	outchar r1, r0
+	store cursor, r0
+	jmp cursordowntwoFim
+		
+	downtwo:
+		loadn r0, #807
+		outchar r1, r0
+		store cursor, r0
+		
+cursordowntwoFim:	
+	pop r2
+	pop r1
+	pop r0
+	rts
+	
 colisaoactive:
 	push r0
 	loadn r0, #1
@@ -203,6 +592,19 @@ colisao:
 	loadi r3, r1
 	cmp r3, r6
 	ceq colisaoactive
+	
+	;contador tamanho do carro
+	loadn r5, #0 
+	loadn r7, #9
+	colisaoLoop:
+		loadn r4, #31
+		sub r1, r1, r4
+		loadi r3, r1
+		cmp r3, r6
+		ceq colisaoactive
+		inc r5
+		cmp r5, r7
+		jle colisaoLoop
 
 	 
 		
@@ -256,16 +658,6 @@ imprimeCarro:
     add r0, r0, r6
 	loadn r1, #carlinha3
     call Imprimestr
-	
-	;inchar r3 ;captura tecla da tela para verificar pulo
-	;cmp r3, r4
-	;ceq jumpactive
-	;call gravidade ;chama funcao gravidade
-	;call jump ;chama funcao pulo
-	
-	;loadn r1, #'H'
-
-	;outchar r1, r5 ;imprime personagem na tela
 	call colisao
 	
 	
@@ -482,16 +874,30 @@ decy:
 
 flagrodar: var #1
 atualpos: var #1
-gameover: string "            GAME OVER                   "
+gameover: string "               DERROTA!                 "
 gamename: string "        NO IDEA FOR A NAME GAME       "
 start: string "         Iniciar um novo jogo         "
 selection: string "         Customuze seu carro          "
+voltar: string "           Salvar e Voltar            "
 
+selectcolor: string "           Cor: < Branco >            "
+selectcar: string "          Carro: < Tipo 1 >           "
+
+cor1string: string " < Branco >  "    ;#0
+cor2string: string " < Vermelho >"  ;#2304
+cor3string: string " < Verde >   "     ;512
+
+carmodel1: string "Tipo 1"
+carmodel2: string "Tipo 2"
+carmodel3: string "Tipo 3"
+               
 screen: var #1 
 colisaoflag: var #1
 altura: var #1
 score: var #1
 cursor: var #1
+selectedCar: var #1
+selectedColor: var #1
 
 
 
@@ -568,10 +974,10 @@ tela1linha27:  string "          -              -    "
 tela1linha28:  string "          -    -    -    -    "
 tela1linha29:  string "          -              -    "
 tela1linha30:  string "          -    -    -    -    "
-tela1linha31:  string "          -              -    "
+tela1linha31:  string "          -     ####     -    "
 tela1linha32:  string "          -    -    -    -    "
 tela1linha33:  string "          -              -    "
-tela1linha34:  string "          -    -    -    -    "
+tela1linha34:  string "          -####-    -    -    "
 tela1linha35:  string "          -              -    "
 tela1linha36:  string "          -    -    -    -    "
 tela1linha37:  string "          -              -    "
@@ -594,15 +1000,15 @@ tela1linha52:	string "          -    -    -    -    "
 tela1linha53:	string "          -              -    "
 tela1linha54:	string "          -    -    -    -    "
 tela1linha55:	string "          -              -    "
-tela1linha56:	string "          -    -    -    -    "
-tela1linha57:	string "          -              -    "
+tela1linha56:	string "          -    -####-    -    "
+tela1linha57:	string "          -          ####-    "
 tela1linha58:	string "          -    -    -    -    "
 tela1linha59:	string "          -              -    "
 tela1linha60:	string "          -    -    -    -    "
 tela1linha61:	string "          -              -    "
 tela1linha62:	string "          -    -    -    -    "
 tela1linha63:	string "          -              -    "
-tela1linha64:	string "          -####-    -####-    "
+tela1linha64:	string "          -    -    -    -    "
 tela1linha65:	string "          -              -    "
 tela1linha66:	string "          -    -    -    -    "
 tela1linha67:	string "          -              -    "
@@ -773,10 +1179,10 @@ tela1linha227:	string "          -              -    "
 tela1linha228:	string "          -    -    -    -    "
 tela1linha229:	string "          -              -    "
 tela1linha230:	string "          -    -    -    -    "
-tela1linha231:	string "          -              -    "
+tela1linha231:	string "          -     ####     -    "
 tela1linha232:	string "          -    -    -    -    "
 tela1linha233:	string "          -              -    "
-tela1linha234:	string "          -    -    -    -    "
+tela1linha234:	string "          -####-    -    -    "
 tela1linha235:	string "          -              -    "
 tela1linha236:	string "          -    -    -    -    "
 tela1linha237:	string "          -              -    "
@@ -787,3 +1193,13 @@ carlinha0:	string " +@ - @| "
 carlinha1:	string "[<[##]>>]"
 carlinha2:	string "[<[##]>>]"
 carlinha3:	string " +@ - @| "
+
+car2linha0:	string " {0 ~ 0> "
+car2linha1:	string "|#(|o)##|"
+car2linha2:	string "|#(|o)##|"
+car2linha3:	string " {0 ~ 0> "
+
+car3linha0:	string " !0 - 0} "
+car3linha1:	string "(@|[o](@)"
+car3linha2:	string "(@|[o](@)"
+car3linha3:	string " !0 - 0} "
