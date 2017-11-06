@@ -2,9 +2,9 @@
 jmp main
 
 main:
-	;loadn r4, #1
-	;store selectedCar, r4		;persistencia das escolhas do jogador apos reiniciar o jogo
-	;store selectedColor, r4
+	loadn r4, #1
+	store selectedCar, r4		;persistencia das escolhas do jogador apos reiniciar o jogo
+	store selectedColor, r4
 	resetgame:
 		loadn r7, #0 ;inicializacao de flags
 		store colisaoflag, r7
@@ -15,9 +15,9 @@ main:
 		store atualpos, r4 ;armazena posição inicial do carrinho na variavel global atualpos
 		loadn r4, #12
 		store altura, r4 ;altura inicial do carro na tela logica
-		loadn r4, #1
-		store selectedCar, r4
-		store selectedColor, r4
+		;loadn r4, #1
+		;store selectedCar, r4
+		;store selectedColor, r4
 		
 		
 		;===============tela inicial================
@@ -53,8 +53,13 @@ main:
 		endfunc:
 			loadn r1, #gameover
 			loadn r0, #81
+			loadn r2, #2304
+			call Imprimestr
+			loadn r1, #restart
+			loadn r0, #161
 			loadn r2, #0
 			call Imprimestr
+			
 			loadn r5, #32
 			loopend:
 				inchar r4
@@ -171,46 +176,72 @@ carCustomize:
 	loadn r1, #selectcar
 	call Imprimestr
 	
-	loadn r0, #575
-	loadn r2, #0 ;cor do carrinho 
-	loadn r1, #carlinha0
-    call Imprimestr
-    ;loadn r2, #0 ;cor do carrinho
-    add r0, r0, r6
-	loadn r1, #carlinha1
-    call Imprimestr
-    ;loadn r2, #0 ;cor do carrinho 
-    add r0, r0, r6
-	loadn r1, #carlinha2
-    call Imprimestr
-    ;loadn r2, #2048 ;cor do carrinho 
-    add r0, r0, r6
-	loadn r1, #carlinha3
-    call Imprimestr
-	
-	
-	loadn r0, #801
-	loadn r1, #voltar
+	loadn r2, #0
+	loadn r0, #335
+	load r4, selectedColor
+	loadn r3, #1
+	cmp r3, r4
+	jeq startwhitecolor
+	inc r3
+	cmp r3, r4
+	jeq startredcolor
+	loadn r1, #cor3string
 	call Imprimestr
-	loadn r2, #3584
-	loadn r0, #121
-	loadn r1, #gamename
-	call Imprimestr
+	jmp typeselect
 	
-	loadn r5, #'>'
-	load r4, cursor
+	startwhitecolor:
+		loadn r1, #cor1string
+		call Imprimestr
+		jmp typeselect
+	startredcolor:
+		loadn r1, #cor2string
+		call Imprimestr
 	
-	outchar r5, r4
 	
-	loadn r5, #32  ;tecla espaco
+	loadn r0, #460
+	typeselect:
+		load r4, selectedCar
+		loadn r3, #1
+		cmp r3, r4
+		jeq starttype1
+		inc r3
+		cmp r3, r4
+		jeq starttype2
+		loadn r1, #carmodel3
+		jmp checkcartoprint
+		
+		starttype1:
+			loadn r1, #carmodel1
+		
+		jmp checkcartoprint
+		starttype2:
+			loadn r1, #carmodel2
 	
-	loadn r3, #119 ;cursor para cima
-	loadn r4, #115 ;cursor para baixo
-	loadn r0, #97 ;cursor para esquerda
-	loadn r1, #100 ;cursor para direita 
+	checkcartoprint:
+		call changecar
 	
-	;A97 D100
-	
+		loadn r0, #801
+		loadn r1, #voltar
+		call Imprimestr
+		loadn r2, #3584
+		loadn r0, #121
+		loadn r1, #gamename
+		call Imprimestr
+		
+		loadn r5, #'>'
+		load r4, cursor
+		
+		outchar r5, r4
+		
+		loadn r5, #32  ;tecla espaco
+		
+		loadn r3, #119 ;cursor para cima
+		loadn r4, #115 ;cursor para baixo
+		loadn r0, #97 ;cursor para esquerda
+		loadn r1, #100 ;cursor para direita 
+		
+		;A97 D100
+		
 	customizeloop:
 		inchar r2 ;captura tecla da tela para verificar se troca via da pista
 		cmp r2, r3
@@ -299,6 +330,7 @@ colorChangeleft:
 		call Imprimestr
 		loadn r3, #1
 		store selectedColor, r3
+		call changecar
 		jmp colorChangeleftFim
 		
 	redcolor:
@@ -308,6 +340,7 @@ colorChangeleft:
 		call Imprimestr
 		loadn r3, #2
 		store selectedColor, r3
+		call changecar
 		jmp colorChangeleftFim
 		
 colorChangeleftFim:		
@@ -343,6 +376,7 @@ colorChangeright:
 		call Imprimestr
 		loadn r3, #2
 		store selectedColor, r3
+		call changecar
 		jmp colorChangeleftFim
 	
 	greencolor:
@@ -352,6 +386,7 @@ colorChangeright:
 		call Imprimestr
 		loadn r3, #3
 		store selectedColor, r3
+		call changecar
 
 colorChangerightFim:
 	pop r4
@@ -389,6 +424,7 @@ carSelectleft:
 		call Imprimestr
 		loadn r3, #1
 		store selectedCar, r3
+		call changecar
 		jmp carSelectleftFim
 		
 	type2:
@@ -398,8 +434,7 @@ carSelectleft:
 		call Imprimestr
 		loadn r3, #2
 		store selectedCar, r3
-		jmp carSelectleftFim
-
+		call changecar
 
 carSelectleftFim:
 	pop r4
@@ -434,6 +469,7 @@ carSelectright:
 		call Imprimestr
 		loadn r3, #2
 		store selectedCar, r3
+		call changecar
 		jmp carSelectleftFim
 		
 	type3:
@@ -443,10 +479,103 @@ carSelectright:
 		call Imprimestr
 		loadn r3, #3
 		store selectedCar, r3
-		jmp carSelectleftFim
+		call changecar
 
 
 carSelectrightFim:
+	pop r4
+	pop r3
+	pop r2
+	pop r1
+	pop r0
+	rts
+	
+changecar:
+	push r0
+	push r1
+	push r2
+	push r3
+	push r4
+	push r5
+	push r6
+	push r7
+	
+	loadn r5, #1
+	loadn r6, #40
+	load r4, selectedColor
+	cmp r5, r4
+	jeq whitecar
+	inc r5
+	cmp r5, r4
+	jeq redcar
+	loadn r2, #512 ;cor do carrinho 
+	jmp reprintcar
+	
+	
+	whitecar: 
+		loadn r2, #0 ;cor do carrinho 
+		jmp reprintcar
+	redcar:
+		loadn r2, #2304 ;cor do carrinho 
+	
+	reprintcar:
+		loadn r5, #1
+		load r4, selectedCar
+		
+		
+		
+		cmp r5, r4
+		jeq type1car
+		inc r5
+		cmp r5, r4
+		jeq type2car
+		loadn r0, #575
+		loadn r1, #car3linha0
+	    call Imprimestr
+	    add r0, r0, r6
+		loadn r1, #car3linha1
+	    call Imprimestr
+	    add r0, r0, r6
+		loadn r1, #car3linha2
+	    call Imprimestr 
+	    add r0, r0, r6
+		loadn r1, #car3linha3
+	    call Imprimestr
+	    jmp changecarFim
+	    
+	    type1car:
+			loadn r0, #575
+			loadn r1, #carlinha0
+		    call Imprimestr
+		    add r0, r0, r6
+			loadn r1, #carlinha1
+		    call Imprimestr
+		    add r0, r0, r6
+			loadn r1, #carlinha2
+		    call Imprimestr 
+		    add r0, r0, r6
+			loadn r1, #carlinha3
+		    call Imprimestr
+		    jmp changecarFim
+		    
+		type2car:
+			loadn r0, #575
+			loadn r1, #car2linha0
+		    call Imprimestr
+		    add r0, r0, r6
+			loadn r1, #car2linha1
+		    call Imprimestr
+		    add r0, r0, r6
+			loadn r1, #car2linha2
+		    call Imprimestr 
+		    add r0, r0, r6
+			loadn r1, #car2linha3
+		    call Imprimestr
+	
+changecarFim:
+	pop r7
+	pop r6
+	pop r5
 	pop r4
 	pop r3
 	pop r2
@@ -595,7 +724,7 @@ colisao:
 	
 	;contador tamanho do carro
 	loadn r5, #0 
-	loadn r7, #9
+	loadn r7, #8
 	colisaoLoop:
 		loadn r4, #31
 		sub r1, r1, r4
@@ -643,22 +772,74 @@ imprimeCarro:
 	
 	load r0, atualpos
 	
-	loadn r2, #0 ;cor do carrinho 
-	loadn r1, #carlinha0
-    call Imprimestr
-    ;loadn r2, #0 ;cor do carrinho
-    add r0, r0, r6
-	loadn r1, #carlinha1
-    call Imprimestr
-    ;loadn r2, #0 ;cor do carrinho 
-    add r0, r0, r6
-	loadn r1, #carlinha2
-    call Imprimestr
-    ;loadn r2, #2048 ;cor do carrinho 
-    add r0, r0, r6
-	loadn r1, #carlinha3
-    call Imprimestr
-	call colisao
+	loadn r5, #1
+	load r4, selectedColor
+	cmp r5, r4
+	jeq whitecarprint
+	inc r5
+	cmp r5, r4
+	jeq redcarprint
+	loadn r2, #512 ;cor do carrinho 
+	jmp printcar
+	
+	
+	whitecarprint: 
+		loadn r2, #0 ;cor do carrinho 
+		jmp printcar
+	redcarprint:
+		loadn r2, #2304 ;cor do carrinho 
+	
+	printcar:
+		loadn r5, #1
+		load r4, selectedCar
+		
+		cmp r5, r4
+		jeq type1carprint
+		inc r5
+		cmp r5, r4
+		jeq type2carprint
+		loadn r1, #car3linha0
+	    call Imprimestr
+	    add r0, r0, r6
+		loadn r1, #car3linha1
+	    call Imprimestr
+	    add r0, r0, r6
+		loadn r1, #car3linha2
+	    call Imprimestr 
+	    add r0, r0, r6
+		loadn r1, #car3linha3
+	    call Imprimestr
+	    jmp colisaoCheck
+	    
+	    type1carprint:
+			loadn r1, #carlinha0
+		    call Imprimestr
+		    add r0, r0, r6
+			loadn r1, #carlinha1
+		    call Imprimestr
+		    add r0, r0, r6
+			loadn r1, #carlinha2
+		    call Imprimestr 
+		    add r0, r0, r6
+			loadn r1, #carlinha3
+		    call Imprimestr
+		    jmp colisaoCheck
+		    
+		type2carprint:
+			loadn r1, #car2linha0
+		    call Imprimestr
+		    add r0, r0, r6
+			loadn r1, #car2linha1
+		    call Imprimestr
+		    add r0, r0, r6
+			loadn r1, #car2linha2
+		    call Imprimestr 
+		    add r0, r0, r6
+			loadn r1, #car2linha3
+		    call Imprimestr
+		    
+	colisaoCheck:   
+		call colisao
 	
 	
 imprimeCarroFim:
@@ -875,6 +1056,7 @@ decy:
 flagrodar: var #1
 atualpos: var #1
 gameover: string "               DERROTA!                 "
+restart: string "      espaco para voltar ao menu        "
 gamename: string "        NO IDEA FOR A NAME GAME       "
 start: string "         Iniciar um novo jogo         "
 selection: string "         Customuze seu carro          "
@@ -1010,9 +1192,9 @@ tela1linha62:	string "          -    -    -    -    "
 tela1linha63:	string "          -              -    "
 tela1linha64:	string "          -    -    -    -    "
 tela1linha65:	string "          -              -    "
-tela1linha66:	string "          -    -    -    -    "
+tela1linha66:	string "          -    -    -####-    "
 tela1linha67:	string "          -              -    "
-tela1linha68:	string "          -    -    -    -    "
+tela1linha68:	string "          -####-    -    -    "
 tela1linha69:	string "          -              -    "
 tela1linha70:	string "          -    -    -    -    "
 tela1linha71:	string "          -              -    "
@@ -1023,7 +1205,7 @@ tela1linha75:	string "          -              -    "
 tela1linha76:	string "          -    -    -    -    "
 tela1linha77:	string "          -              -    "
 tela1linha78:	string "          -    -    -    -    "
-tela1linha79:	string "          -              -    "
+tela1linha79:	string "          -     ####     -    "
 
 tela1linha80:	string "          -    -    -    -    "
 tela1linha81:	string "          -              -    "
@@ -1034,8 +1216,8 @@ tela1linha85:	string "          -              -    "
 tela1linha86:	string "          -    -    -    -    "
 tela1linha87:	string "          -              -    "
 tela1linha88:	string "          -    -    -    -    "
-tela1linha89:	string "          -              -    "
-tela1linha90:	string "          -    -    -    -    "
+tela1linha89:	string "          -####          -    "
+tela1linha90:	string "          -    -####-    -    "
 tela1linha91:	string "          -              -    "
 tela1linha92:	string "          -    -    -    -    "
 tela1linha93:	string "          -              -    "
@@ -1045,8 +1227,8 @@ tela1linha96:	string "          -    -    -    -    "
 tela1linha97:	string "          -              -    "
 tela1linha98:	string "          -    -    -    -    "
 tela1linha99:	string "          -              -    "
-tela1linha100:	string "          -    -    -    -    "
-tela1linha101:	string "          -              -    "
+tela1linha100:	string "          -    -    -####-    "
+tela1linha101:	string "          -     ####     -    "
 tela1linha102:	string "          -    -    -    -    "
 tela1linha103:	string "          -              -    "
 tela1linha104:	string "          -    -    -    -    "
@@ -1056,7 +1238,7 @@ tela1linha107:	string "          -              -    "
 tela1linha108:	string "          -    -    -    -    "
 tela1linha109:	string "          -              -    "
 tela1linha110:	string "          -    -    -    -    "
-tela1linha111:	string "          -              -    "
+tela1linha111:	string "          -#### ####     -    "
 tela1linha112:	string "          -    -    -    -    "
 tela1linha113:	string "          -              -    "
 tela1linha114:	string "          -    -    -    -    "
@@ -1194,12 +1376,12 @@ carlinha1:	string "[<[##]>>]"
 carlinha2:	string "[<[##]>>]"
 carlinha3:	string " +@ - @| "
 
-car2linha0:	string " {0 ~ 0> "
+car2linha0:	string " (0 - 0> "
 car2linha1:	string "|#(|o)##|"
 car2linha2:	string "|#(|o)##|"
-car2linha3:	string " {0 ~ 0> "
+car2linha3:	string " (0 - 0> "
 
-car3linha0:	string " !0 - 0} "
-car3linha1:	string "(@|[o](@)"
-car3linha2:	string "(@|[o](@)"
-car3linha3:	string " !0 - 0} "
+car3linha0:	string " +0 - 0| "
+car3linha1:	string "<@#|o]|@>"
+car3linha2:	string "<@#|o]|@>"
+car3linha3:	string " +0 - 0| "
