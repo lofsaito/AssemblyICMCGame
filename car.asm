@@ -10,19 +10,14 @@ main:
 		store colisaoflag, r7
 		loadn r6, #40 ;criterio de parada da impressao de telas, ultima tela a ser impressa, voltar para a primeira
 		loadn r3, #31  ;incremento da coluna da tela, para shifitar a tela
-		;loadn r5, #32  ;tecla espaco
 		loadn r4, #643 ;posicao inicial do carrinho na tela -200 sobe a rua +200 desce
 		store atualpos, r4 ;armazena posição inicial do carrinho na variavel global atualpos
 		loadn r4, #12
 		store altura, r4 ;altura inicial do carro na tela logica
-		;loadn r4, #1
-		;store selectedCar, r4
-		;store selectedColor, r4
-		
 		
 		;===============tela inicial================
 		
-		call movecursor
+		call movecursor ;função responsavel por imprimir o menu inicial e mover o cursor na tela
 		
 		;==============fim tela inicial===============
 		loadn r2, #1536 ;cor do mapa
@@ -82,11 +77,12 @@ movecursor:
 	telaInicialLoop:
 		loadn r1, #starttela1linha0 ; endereco da primeira linha da tela
 		loadn r2, #768 ;cor do mapa
-		call imprimeTelaInit
+		call imprimeTelaInit ;imprime a tela inicial
 		
-		loadn r4, #327
+		loadn r4, #327		;posição inicial do cursor na tela
 		store cursor, r4
 		
+		;imprime opições do menu da tela inicial
 		loadn r2, #0
 		loadn r0, #321
 		loadn r1, #start
@@ -99,19 +95,20 @@ movecursor:
 		loadn r1, #gamename
 		call Imprimestr
 		
+		;carrega e imprime o cursor na tela
 		loadn r5, #'>'
 		load r4, cursor
 		
 		outchar r5, r4
 		
-		loadn r0, #327
-		loadn r1, #447
+		loadn r0, #327 ;posição da primeira opição da tela inicial
+		loadn r1, #447 ;posição da segunda opição da tela inicial
 		loadn r5, #32  ;tecla espaco
 		
-		loadn r3, #119
-		loadn r4, #115
+		loadn r3, #119	;letra w move para cima
+		loadn r4, #115	; letra s move para baixo
 		
-		
+		;loop para mover o cursor na tela
 		cursorloop:
 			inchar r2 ;captura tecla da tela para verificar se troca via da pista
 			cmp r2, r3
@@ -124,18 +121,15 @@ movecursor:
 			jeq checkPosition
 			jmp cursorloop
 			
+		;verifica posição do cursor na tela quando o jogador aperta espaço
+		;utilizada para selecionar uma opição na tela
 		checkPosition:
 			load r6, cursor
 			cmp r0, r6
-			jeq movecursorFim
+			jeq movecursorFim ;começa jogo
 			cmp r1, r6
-			ceq carCustomize
-			;loadn r2, #1
+			ceq carCustomize ;tela para customizar o carrinho
 	jmp telaInicialLoop
-	
-	;loadn r1, #'>'
-	;load r0, cursor
-	;outchar r1, r0
 	
 movecursorFim:
 	pop r6
@@ -158,9 +152,9 @@ carCustomize:
 	push r6
 	push r7
 	
+	;============Imprime primeira versão da tela de customização do carrinho=============
 	loadn r6, #40
 	loadn r1, #starttela1linha0
-	;loadn r5, #32  ;tecla espaco
 	
 	loadn r2, #768 ;cor do mapa
 	call imprimeTelaInit
@@ -233,15 +227,16 @@ carCustomize:
 		
 		outchar r5, r4
 		
+		;============Fim da impressão da primeira versão da tela de customização do carrinho=============
+		
 		loadn r5, #32  ;tecla espaco
 		
-		loadn r3, #119 ;cursor para cima
-		loadn r4, #115 ;cursor para baixo
-		loadn r0, #97 ;cursor para esquerda
-		loadn r1, #100 ;cursor para direita 
+		loadn r3, #119 ;W cursor para cima
+		loadn r4, #115 ;S cursor para baixo
+		loadn r0, #97 ;A cursor para esquerda
+		loadn r1, #100 ;D cursor para direita 
 		
-		;A97 D100
-		
+	;loop da tela de customização do carrinho
 	customizeloop:
 		inchar r2 ;captura tecla da tela para verificar se troca via da pista
 		cmp r2, r3
@@ -258,7 +253,8 @@ carCustomize:
 		cmp r2, r5
 		jeq checkcursorspace
 		jmp customizeloop
-		
+	
+	;verifica opição selecionada, cor ou tipo do carrinho, mudando para o lado esquerdo	
 	checkcursorleft:
 		loadn r0, #327
 		loadn r1, #447
@@ -270,7 +266,8 @@ carCustomize:
 		loadn r0, #97 ;cursor para esquerda
 		loadn r1, #100 ;cursor para direita 
 		jmp customizeloop
-		
+	
+	;verifica opição selecionada, cor ou tipo do carrinho, mudando para o lado direito
 	checkcursorright:
 		loadn r0, #327
 		loadn r1, #447
@@ -283,6 +280,7 @@ carCustomize:
 		loadn r1, #100 ;cursor para direita 
 		jmp customizeloop
 		
+	;caso o jogador pressione espaço verifica se é para sair da tela de customização do carrinho
 	checkcursorspace:	
 		loadn r7, #807
 		load r6, cursor
@@ -302,7 +300,7 @@ carCustomizeFim:
 	
 	rts
 	
-	
+;função que muda a cor do carrinho quando o jogador apertou A(esquerda)
 colorChangeleft:
 	push r0
 	push r1
@@ -310,7 +308,6 @@ colorChangeleft:
 	push r3
 	push r4
 	
-	;min 1 max 3
 	load r4, selectedColor
 	loadn r3, #1
 
@@ -350,7 +347,8 @@ colorChangeleftFim:
 	pop r1
 	pop r0
 	rts
-	
+
+;função que muda a cor do carrinho quando o jogador apertou D(direita)
 colorChangeright:
 	push r0
 	push r1
@@ -396,7 +394,7 @@ colorChangerightFim:
 	pop r0
 	rts
 
-
+;função que muda o tipo do carrinho quando o jogador apertou A(esquerda)
 carSelectleft:
 	push r0
 	push r1
@@ -443,7 +441,8 @@ carSelectleftFim:
 	pop r1
 	pop r0
 	rts
-	
+
+;função que muda o tipo do carrinho quando o jogador apertou D(direita)	
 carSelectright:
 	push r0
 	push r1
@@ -489,7 +488,8 @@ carSelectrightFim:
 	pop r1
 	pop r0
 	rts
-	
+
+;função responsavel por imprimir o carrinho na tela há mudança de cor ou tipo	
 changecar:
 	push r0
 	push r1
@@ -582,7 +582,8 @@ changecarFim:
 	pop r1
 	pop r0
 	rts
-		
+
+;sobe cursor
 cursorup:
 	push r0
 	push r1
@@ -601,7 +602,8 @@ cursorup:
 	pop r1
 	pop r0
 	rts
-	
+
+;desce cursor	
 cursordown:
 	push r0
 	push r1
@@ -621,7 +623,8 @@ cursordown:
 	pop r0
 	rts
 	
-	
+
+;sobe cursor quando a posição é  a ultima da tela de customização do carrinho
 cursoruptwo:
 	push r0
 	push r1
@@ -654,7 +657,8 @@ cursoruptwoFim:
 	pop r1
 	pop r0
 	rts
-	
+
+;desce cursor quando a posição é  a ultima da tela de customização do carrinho	
 cursordowntwo:
 	push r0
 	push r1
@@ -706,12 +710,10 @@ colisao:
 	push r6
 	push r7
 	
-	;load r0, atualpos
 	load r1, screen
 	
 	loadn r2, #346  
 	load r5, altura
-	;loadn r4, #10
 	add r1, r1, r2
 	add r1, r1, r5
 	
@@ -734,9 +736,6 @@ colisao:
 		inc r5
 		cmp r5, r7
 		jle colisaoLoop
-
-	 
-		
 
 colisaoFim:
 	pop r7
@@ -930,7 +929,6 @@ imprimeTela:
 		cmp r0, r5 ; compara r0 com 40
 		jne ImprimeTelaLoop ; Enquanto r0 < 40
 		
-	
 	pop r7
 	pop r6
 	pop	r5
@@ -939,7 +937,6 @@ imprimeTela:
 	pop r2
 	pop r1
 	pop r0
-	
 	rts
 	
 	
@@ -966,7 +963,6 @@ ImprimeTelaInitLoop:
 	cmp r0, r5 ; compara r0 com 40
 	jne ImprimeTelaInitLoop ; Enquanto r0 < 40
 	
-
 	pop r7
 	pop r6
 	pop	r5
@@ -975,7 +971,6 @@ ImprimeTelaInitLoop:
 	pop r2
 	pop r1
 	pop r0
-
 	rts
 
 
