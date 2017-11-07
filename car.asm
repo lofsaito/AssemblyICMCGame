@@ -37,7 +37,6 @@ main:
 			;store screen, r1 ;referencia para colisao
 			cmp r6, r7 ;criterio para reset
 			jeq reset
-			;call delay
 			jmp loop
 		reset:
 			loadn r1, #tela1linha0 ;reinicia a sequencia de telas
@@ -46,6 +45,7 @@ main:
 			jmp loop
 			
 		endfunc:
+			call explosion
 			loadn r1, #gameover
 			loadn r0, #81
 			loadn r2, #2304
@@ -57,6 +57,7 @@ main:
 			
 			loadn r5, #32
 			loopend:
+				call fireexplosion
 				inchar r4
 				cmp r4, r5
 			jne loopend
@@ -64,6 +65,213 @@ main:
 			
 	halt
 	
+	
+pausar:
+	push r0
+	push r1
+	push r2
+	push r3
+	loadn r1, #'p'
+	
+	loadn r0, #' '
+	loadn r1, #pause
+	loadn r0, #81
+	loadn r2, #768
+	call Imprimestr
+	loadn r1, #'p'
+	pausarLoop:
+		inchar r0
+		cmp r0, r1
+	jne pausarLoop
+
+pausarFim:
+	pop r3
+	pop r2
+	pop r1
+	pop r0
+	rts
+
+explosion:
+	push r0
+	push r1
+	push r2
+	push r3
+	push r4
+	push r5
+	push r6
+	push r7
+	
+	loadn r7, #2
+	loadn r6, #40	
+	
+	loadn r5, #1
+	load r4, selectedColor
+	cmp r5, r4
+	jeq whiteexplosion
+	inc r5
+	cmp r5, r4
+	jeq redexplosion
+	loadn r2, #512 ;cor do carrinho 
+	jmp printexplosion
+	
+	whiteexplosion: 
+		loadn r2, #0 ;cor do carrinho 
+		jmp printexplosion
+	redexplosion:
+		loadn r2, #2304 ;cor do carrinho 
+	
+	printexplosion:
+		load r0, atualpos
+		sub r0, r0, r6
+		loadn r1, #explosion0
+	    call Imprimestr
+	    add r0, r0, r6
+		loadn r1, #explosion1
+	    call Imprimestr
+	    add r0, r0, r6
+		loadn r1, #explosion2
+	    call Imprimestr 
+	    add r0, r0, r6
+		loadn r1, #explosion3
+	    call Imprimestr
+	    add r0, r0, r6
+		loadn r1, #explosion4
+	    call Imprimestr
+	    add r0, r0, r6
+		loadn r1, #explosion5
+	    call Imprimestr
+	    
+	    load r0, atualpos
+	    sub r0, r0, r6
+	    sub r0, r0, r6
+	    sub r0, r0, r7
+	    
+	    call delay
+	    
+	    loadn r1, #explosion6
+	    call Imprimestr
+	    add r0, r0, r6
+		loadn r1, #explosion7
+	    call Imprimestr
+	    add r0, r0, r6
+		loadn r1, #explosion8
+	    call Imprimestr 
+	    add r0, r0, r6
+		loadn r1, #explosion9
+	    call Imprimestr
+	    add r0, r0, r6
+		loadn r1, #explosion10
+	    call Imprimestr
+	    add r0, r0, r6
+		loadn r1, #explosion11
+	    call Imprimestr
+	    add r0, r0, r6
+		loadn r1, #explosion12
+	    call Imprimestr
+	    add r0, r0, r6
+		loadn r1, #explosion13
+	    call Imprimestr
+
+explosionFim:
+	pop r7
+	pop r6
+	pop r5
+	pop r4
+	pop r3
+	pop r2
+	pop r1
+	pop r0
+	rts
+	
+fireexplosion:
+	push r0
+	push r1
+	push r2
+	push r3
+	push r4
+	push r5
+	push r6
+	push r7
+	
+	loadn r6, #40
+	loadn r7, #2
+	
+	load r0, atualpos
+    sub r0, r0, r6
+    sub r0, r0, r6
+    sub r0, r0, r7
+    
+    
+    loadn r2, #2816 ;cor do carrinho 
+    
+    loadn r1, #explosion6
+    call Imprimestr
+    add r0, r0, r6
+	loadn r1, #explosion7
+    call Imprimestr
+    add r0, r0, r6
+	loadn r1, #explosion8
+    call Imprimestr 
+    add r0, r0, r6
+	loadn r1, #explosion9
+    call Imprimestr
+    add r0, r0, r6
+	loadn r1, #explosion10
+    call Imprimestr
+    add r0, r0, r6
+	loadn r1, #explosion11
+    call Imprimestr
+    add r0, r0, r6
+	loadn r1, #explosion12
+    call Imprimestr
+    add r0, r0, r6
+	loadn r1, #explosion13
+    call Imprimestr
+    
+    call delay
+    
+	load r0, atualpos
+    sub r0, r0, r6
+    sub r0, r0, r6
+    sub r0, r0, r7
+    
+    loadn r2, #2304 ;cor do carrinho 
+    
+    loadn r1, #explosion6
+    call Imprimestr
+    add r0, r0, r6
+	loadn r1, #explosion7
+    call Imprimestr
+    add r0, r0, r6
+	loadn r1, #explosion8
+    call Imprimestr 
+    add r0, r0, r6
+	loadn r1, #explosion9
+    call Imprimestr
+    add r0, r0, r6
+	loadn r1, #explosion10
+    call Imprimestr
+    add r0, r0, r6
+	loadn r1, #explosion11
+    call Imprimestr
+    add r0, r0, r6
+	loadn r1, #explosion12
+    call Imprimestr
+    add r0, r0, r6
+	loadn r1, #explosion13
+    call Imprimestr
+    call delay
+	
+fireexplosionFim:
+	pop r7
+	pop r6
+	pop r5
+	pop r4
+	pop r3
+	pop r2
+	pop r1
+	pop r0
+	rts
 
 movecursor:
 	push r0
@@ -93,6 +301,15 @@ movecursor:
 		loadn r2, #3584
 		loadn r0, #121
 		loadn r1, #gamename
+		call Imprimestr
+		loadn r0, #804
+		loadn r1, #text0
+		call Imprimestr
+		loadn r0, #884
+		loadn r1, #text1
+		call Imprimestr
+		loadn r0, #924
+		loadn r1, #text2
 		call Imprimestr
 		
 		;carrega e imprime o cursor na tela
@@ -140,7 +357,6 @@ movecursorFim:
 	pop r1
 	pop r0
 	rts
-	
 	
 carCustomize:
 	push r0
@@ -191,9 +407,8 @@ carCustomize:
 		loadn r1, #cor2string
 		call Imprimestr
 	
-	
-	loadn r0, #460
 	typeselect:
+		loadn r0, #460
 		load r4, selectedCar
 		loadn r3, #1
 		cmp r3, r4
@@ -202,18 +417,19 @@ carCustomize:
 		cmp r3, r4
 		jeq starttype2
 		loadn r1, #carmodel3
+		call Imprimestr
 		jmp checkcartoprint
 		
 		starttype1:
 			loadn r1, #carmodel1
-		
-		jmp checkcartoprint
+			call Imprimestr
+			jmp checkcartoprint
 		starttype2:
 			loadn r1, #carmodel2
+			call Imprimestr
 	
 	checkcartoprint:
 		call changecar
-	
 		loadn r0, #801
 		loadn r1, #voltar
 		call Imprimestr
@@ -297,7 +513,6 @@ carCustomizeFim:
 	pop r2
 	pop r1
 	pop r0
-	
 	rts
 	
 ;função que muda a cor do carrinho quando o jogador apertou A(esquerda)
@@ -480,7 +695,6 @@ carSelectright:
 		store selectedCar, r3
 		call changecar
 
-
 carSelectrightFim:
 	pop r4
 	pop r3
@@ -511,7 +725,6 @@ changecar:
 	loadn r2, #512 ;cor do carrinho 
 	jmp reprintcar
 	
-	
 	whitecar: 
 		loadn r2, #0 ;cor do carrinho 
 		jmp reprintcar
@@ -521,8 +734,6 @@ changecar:
 	reprintcar:
 		loadn r5, #1
 		load r4, selectedCar
-		
-		
 		
 		cmp r5, r4
 		jeq type1car
@@ -622,7 +833,6 @@ cursordown:
 	pop r1
 	pop r0
 	rts
-	
 
 ;sobe cursor quando a posição é  a ultima da tela de customização do carrinho
 cursoruptwo:
@@ -716,7 +926,6 @@ colisao:
 	load r5, altura
 	add r1, r1, r2
 	add r1, r1, r5
-	
 
 	loadn r6, #'#'
 	
@@ -735,7 +944,7 @@ colisao:
 		ceq colisaoactive
 		inc r5
 		cmp r5, r7
-		jle colisaoLoop
+		jle colisaoLoop		
 
 colisaoFim:
 	pop r7
@@ -759,8 +968,8 @@ imprimeCarro:
 	push r7
 	loadn r4, #119
 	loadn r5, #115
-	;load r0, atualpos
 	loadn r6, #40
+	loadn r7, #'p'
 	
 	inchar r3 ;captura tecla da tela para verificar se troca via da pista
 	cmp r3, r4
@@ -768,6 +977,9 @@ imprimeCarro:
 	
 	cmp r3, r5
 	ceq descer
+	
+	;cmp r3, r7
+	;ceq pausar
 	
 	load r0, atualpos
 	
@@ -780,7 +992,6 @@ imprimeCarro:
 	jeq redcarprint
 	loadn r2, #512 ;cor do carrinho 
 	jmp printcar
-	
 	
 	whitecarprint: 
 		loadn r2, #0 ;cor do carrinho 
@@ -839,7 +1050,9 @@ imprimeCarro:
 		    
 	colisaoCheck:   
 		call colisao
-	
+		
+	cmp r3, r7
+	ceq pausar
 	
 imprimeCarroFim:
 	pop r7
@@ -876,7 +1089,6 @@ subirFim:
 	pop r1
 	pop r0
 	rts
-	
 
 descer:
 	push r0
@@ -928,7 +1140,7 @@ imprimeTela:
 		ceq imprimeCarro
 		cmp r0, r5 ; compara r0 com 40
 		jne ImprimeTelaLoop ; Enquanto r0 < 40
-		
+	
 	pop r7
 	pop r6
 	pop	r5
@@ -938,7 +1150,6 @@ imprimeTela:
 	pop r1
 	pop r0
 	rts
-	
 	
 imprimeTelaInit:
 	push r0
@@ -972,7 +1183,6 @@ ImprimeTelaInitLoop:
 	pop r1
 	pop r0
 	rts
-
 
 Imprimestr:	;  Rotina de Impresao de Mensagens:    r0 = Posicao da tela que o primeiro caractere da mensagem sera' impresso;  r1 = endereco onde comeca a mensagem; r2 = cor da mensagem.   Obs: a mensagem sera' impressa ate' encontrar "/0"
 	push r0	; protege o r0 na pilha para preservar seu valor
@@ -1010,7 +1220,6 @@ Imprimecoluna:	;  Rotina de Impresao de Mensagens:    r0 = Posicao da tela que o
 	push r5
 	
 	loadn r3, #'\0'	; Criterio de parada4
-	;loadn r5, #40 ;incremento de 40 para pegar a proxima posição a ser impressa
 
 ImprimecolunaLoop:
 	loadi r4, r1 ; passa o conteudo do end. da string para r4
@@ -1035,9 +1244,9 @@ delay:
 	push r0
 	push r1
 
-	loadn r0, #5
+	loadn r0, #50
 decx:
-	loadn r1, #3000
+	loadn r1, #800000
 decy:
 	dec r1
 	jnz decy
@@ -1052,17 +1261,22 @@ flagrodar: var #1
 atualpos: var #1
 gameover: string "               DERROTA!                 "
 restart: string "      espaco para voltar ao menu        "
-gamename: string "        NO IDEA FOR A NAME GAME       "
+gamename: string "          SAO CARLOS STREET           "
 start: string "         Iniciar um novo jogo         "
-selection: string "         Customuze seu carro          "
+selection: string "         Customize seu carro          "
 voltar: string "           Salvar e Voltar            "
+pause: string "             ::PAUSADO::               "
+
+text0: string " Nenhum carro eh indestrutivel!"
+text1: string "    Sobreviva aos buracos nas   "
+text2: string "    ruas de Sao Carlos. "
 
 selectcolor: string "           Cor: < Branco >            "
 selectcar: string "          Carro: < Tipo 1 >           "
 
-cor1string: string " < Branco >  "    ;#0
+cor1string: string " < Branco >  "  ;#0
 cor2string: string " < Vermelho >"  ;#2304
-cor3string: string " < Verde >   "     ;512
+cor3string: string " < Verde >   "  ;512
 
 carmodel1: string "Tipo 1"
 carmodel2: string "Tipo 2"
@@ -1075,8 +1289,6 @@ score: var #1
 cursor: var #1
 selectedCar: var #1
 selectedColor: var #1
-
-
 
 starttela1linha0:   string "##############################"
 starttela1linha1:   string "#                            #"
@@ -1118,7 +1330,6 @@ starttela1linha36:  string "#                            #"
 starttela1linha37:  string "#                            #"
 starttela1linha38:  string "#                            #"
 starttela1linha39:  string "##############################"
-
 
 tela1linha0:   string "          -    -    -    -    "
 tela1linha1:   string "          -              -    "
@@ -1244,7 +1455,7 @@ tela1linha118:	string "          -    -    -    -    "
 tela1linha119:	string "          -              -    "
 
 tela1linha120:	string "          -    -    -    -    "
-tela1linha121:	string "          -              -    "
+tela1linha121:	string "          -####      ####-    "
 tela1linha122:	string "          -    -    -    -    "
 tela1linha123:	string "          -              -    "
 tela1linha124:	string "          -    -    -    -    "
@@ -1254,7 +1465,7 @@ tela1linha127:	string "          -              -    "
 tela1linha128:	string "          -    -    -    -    "
 tela1linha129:	string "          -              -    "
 tela1linha130:	string "          -    -    -    -    "
-tela1linha131:	string "          -              -    "
+tela1linha131:	string "          -     #### ####-    "
 tela1linha132:	string "          -    -    -    -    "
 tela1linha133:	string "          -              -    "
 tela1linha134:	string "          -    -    -    -    "
@@ -1264,7 +1475,7 @@ tela1linha137:	string "          -              -    "
 tela1linha138:	string "          -    -    -    -    "
 tela1linha139:	string "          -              -    "
 tela1linha140:	string "          -    -    -    -    "
-tela1linha141:	string "          -              -    "
+tela1linha141:	string "          -#### ####     -    "
 tela1linha142:	string "          -    -    -    -    "
 tela1linha143:	string "          -              -    "
 tela1linha144:	string "          -    -    -    -    "
@@ -1274,7 +1485,7 @@ tela1linha147:	string "          -              -    "
 tela1linha148:	string "          -    -    -    -    "
 tela1linha149:	string "          -              -    "
 tela1linha150:	string "          -    -    -    -    "
-tela1linha151:	string "          -              -    "
+tela1linha151:	string "          -     #### ####-    "
 tela1linha152:	string "          -    -    -    -    "
 tela1linha153:	string "          -              -    "
 tela1linha154:	string "          -    -    -    -    "
@@ -1285,8 +1496,8 @@ tela1linha158:	string "          -    -    -    -    "
 tela1linha159:	string "          -              -    "
 
 tela1linha160:	string "          -    -    -    -    "
-tela1linha161:	string "          -              -    "
-tela1linha162:	string "          -    -    -    -    "
+tela1linha161:	string "          -     ####     -    "
+tela1linha162:	string "          -####-    -    -    "
 tela1linha163:	string "          -              -    "
 tela1linha164:	string "          -    -    -    -    "
 tela1linha165:	string "          -              -    "
@@ -1295,8 +1506,8 @@ tela1linha167:	string "          -              -    "
 tela1linha168:	string "          -    -    -    -    "
 tela1linha169:	string "          -              -    "
 tela1linha170:	string "          -    -    -    -    "
-tela1linha171:	string "          -              -    "
-tela1linha172:	string "          -    -    -    -    "
+tela1linha171:	string "          -          ####-    "
+tela1linha172:	string "          -####-    -    -    "
 tela1linha173:	string "          -              -    "
 tela1linha174:	string "          -    -    -    -    "
 tela1linha175:	string "          -              -    "
@@ -1305,7 +1516,7 @@ tela1linha177:	string "          -              -    "
 tela1linha178:	string "          -    -    -    -    "
 tela1linha179:	string "          -              -    "
 tela1linha180:	string "          -    -    -    -    "
-tela1linha181:	string "          -              -    "
+tela1linha181:	string "          -     ####     -    "
 tela1linha182:	string "          -    -    -    -    "
 tela1linha183:	string "          -              -    "
 tela1linha184:	string "          -    -    -    -    "
@@ -1315,8 +1526,8 @@ tela1linha187:	string "          -              -    "
 tela1linha188:	string "          -    -    -    -    "
 tela1linha189:	string "          -              -    "
 tela1linha190:	string "          -    -    -    -    "
-tela1linha191:	string "          -              -    "
-tela1linha192:	string "          -    -    -    -    "
+tela1linha191:	string "          -####          -    "
+tela1linha192:	string "          -    -    -####-    "
 tela1linha193:	string "          -              -    "
 tela1linha194:	string "          -    -    -    -    "
 tela1linha195:	string "          -              -    "
@@ -1367,8 +1578,8 @@ tela1linha238:	string "          -    -    -    -    "
 tela1linha239:	string "          -              -    "
 
 carlinha0:	string " +@ - @| "
-carlinha1:	string "[<[##]>>]"
-carlinha2:	string "[<[##]>>]"
+carlinha1:	string "[<[#o]>>]"
+carlinha2:	string "[<[#o]>>]"
 carlinha3:	string " +@ - @| "
 
 car2linha0:	string " (0 - 0> "
@@ -1380,3 +1591,29 @@ car3linha0:	string " +0 - 0| "
 car3linha1:	string "<@#|o]|@>"
 car3linha2:	string "<@#|o]|@>"
 car3linha3:	string " +0 - 0| "
+
+
+explosion0: string "+  0   >"
+explosion1: string "  0   -  |"
+explosion2:	string "|#(x8)#   #  |"
+explosion3:	string "|#(x8) # # |"
+explosion4: string "   -   0"
+explosion5: string "0  +  |  "
+
+explosion6: string "+     0       >"
+explosion7: string "    0      -      |"
+explosion8:	string "  #  x 8   )    #"
+explosion9:	string "|    (      #       |"
+explosion10: string "  # (  8    #   |"
+explosion11: string "          "
+explosion12: string "|   x  )     # "
+explosion13: string "   -        0"
+
+explosionclear0:  string "               "
+explosionclear1:  string "                   "
+explosionclear2:  string "                 "
+explosionclear3:  string "                     "
+explosionclear4:  string "                 "
+explosionclear5:  string "         "
+explosionclear6:  string "               "
+explosionclear7:  string "             "
